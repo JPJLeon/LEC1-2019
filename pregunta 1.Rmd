@@ -1,5 +1,5 @@
 ---
-title: "pregunta 1"
+title: "Pregunta 1"
 output: html_document
 ---
 
@@ -7,22 +7,68 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Definición de requerimientos de tipo descriptivo
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+1. Cuales son los dies paises que tienen la mayor cantidad de medallas de oro en la historia de los juegos olimpicos?
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+2. De los paises anteriores, cual fue la edad promedio, por pais, de los atletas que participaron en los juegos olimpicos de Rio de Janeiro el 2016?
 
-```{r cars}
-summary(cars)
+3. Cuales son los dies paises con mayor representacion (mayor cantidad de atletas) en los juegos olimpicos de Londres el 2012?
+
+Para nuestro primer requerimiento tomamos aquellas filas que tienen "Gold" en la columna de "Medal", enfocandonos en la columna de las abreviaciones "NOC". Luego contamos cuantas veces se repite cada nacionalidad, las ordenamos en orden de frecuencia decreciente y tomamos las primeras cincuenta.
+
+```{r 1.1}
+library("plyr", lib.loc="~/R/win-library/3.5")
+library("ggplot2", lib.loc="~/R/win-library/3.5")
+datos = read.csv("athlete_events.csv", header=T)
+attach(datos)
+
+cantidadOroPaises <- count(subset(datos, Medal == "Gold", select=c(NOC)), "NOC")
+cantidadOrdenada <- cantidadOroPaises[order(-cantidadOroPaises[c(2)]),] 
+topOro10 <- head(cantidadOrdenada,10)
+
+p1<-ggplot(data=topOro10, aes(x=NOC, y=freq, fill=NOC)) +
+  geom_bar(stat="identity") + coord_flip() +
+  geom_text(aes(label=freq), vjust=0.2, hjust = 1.5, color="white", size=3.5)+
+  theme_minimal() +
+  labs(title="Paises con la mayor cantidad de medallas de oro (1896-2016)", 
+         x="Pais (abreviacion NOC)", y = "Cantidad de medallas de oro") +
+  theme(legend.position="none", plot.title=element_text( hjust=1, vjust=0.5, face='bold'))
+p1
 ```
 
-## Including Plots
+Para el segundo requerimiento descriptivo, primero debemos seleccionar todas aquellas filas correspondientes a atletas que participaron en los juegos olimpicos de Rio de Janeiro de 2016, luego calculamos la edad promedio de los atletas de cada pais.
 
-You can also embed plots, for example:
+```{r 1.2}
+datosRio2016 <- subset(datos, City == "Rio de Janeiro" & Year == "2016", select=c(NOC, Age))
+edadesPromedio <- ddply(datosRio2016, c("NOC"), summarise, Promedio = round(mean(Age), digits = 1))
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+edadesPromedioTop10 <- edadesPromedio[edadesPromedio$NOC %in% topOro10$NOC,]
+
+p2<-ggplot(data=edadesPromedioTop10, aes(x=NOC, y=Promedio, fill=NOC)) +
+  geom_bar(stat="identity") + coord_flip(ylim = c(25,28)) +
+  geom_text(aes(label=Promedio), vjust=0.2, hjust = 1.5, color="white", size=3.5)+
+  theme_minimal() +
+  labs(title="Edad media de atletas olimpicos, Rio de Janeiro 2016", 
+         x="Pais (abreviacion NOC)", y = "Edad media atletas") +
+  theme(legend.position="none", plot.title=element_text( hjust=0.5, vjust=0, face='bold'))
+p2 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Para el tercer requerimiento tomamos los datos que corresponden a los juegos olimpicos de Londres 2012 y luego contamos cuantas veces se repite cada pais, ordenamos de mayor a menor frecuencia y tomamos los primeros dies.
+```{r 1.3}
+datosLondres2012 <- subset(datos, City == "London" & Year == "2012", select=c(NOC))
+cantidadAtletas <- count(datosLondres2012, "NOC")
+atletasOrdenados <- cantidadAtletas[order(-cantidadAtletas$freq),] 
+topAtletas10 <- head(atletasOrdenados,10)
+
+p3<-ggplot(data=topAtletas10, aes(x=NOC, y=freq, fill=NOC)) +
+  geom_bar(stat="identity") + coord_flip() +
+  geom_text(aes(label=freq), vjust=0.2, hjust = 1.5, color="white", size=3.5)+
+  theme_minimal() +
+  labs(title="Paises con la mayor representacion en los juegos olimpicos Londres 2012", 
+         x="Pais (abreviacion NOC)", y = "Cantidad de atletas participantes") +
+  theme(legend.position="none", plot.title=element_text( hjust=1, vjust=0.5, face='bold'))
+p3
+```
+
