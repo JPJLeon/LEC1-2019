@@ -1,28 +1,277 @@
 ---
-title: "final"
+title: "Laboratorio 1"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(ggcorrplot)
+info <- read.csv("athlete_events.csv")
+```
+# Pregunta 1
+
+## Definicion de requerimientos de tipo descriptivo
+
+1. Cuales son los dies paises que tienen la mayor cantidad de medallas de oro en la historia de los juegos olimpicos?
+
+2. De los paises anteriores, cual fue la edad promedio, por pais, de los atletas que participaron en los juegos olimpicos de Rio de Janeiro el 2016?
+
+3. Cuales son los dies paises con mayor representacion (mayor cantidad de atletas) en los juegos olimpicos de Londres el 2012?
+
+Para nuestro primer requerimiento tomamos aquellas filas que tienen "Gold" en la columna de "Medal", enfocandonos en la columna de las abreviaciones "NOC". Luego contamos cuantas veces se repite cada nacionalidad, las ordenamos en orden de frecuencia decreciente y tomamos las primeras cincuenta.
+
+```{r 1.1}
+library("plyr", lib.loc="~/R/win-library/3.5")
+library("ggplot2", lib.loc="~/R/win-library/3.5")
+datos = read.csv("athlete_events.csv", header=T)
+attach(datos)
+
+cantidadOroPaises <- count(subset(datos, Medal == "Gold", select=c(NOC)), "NOC")
+cantidadOrdenada <- cantidadOroPaises[order(-cantidadOroPaises[c(2)]),] 
+topOro10 <- head(cantidadOrdenada,10)
+
+p1<-ggplot(data=topOro10, aes(x=NOC, y=freq, fill=NOC)) +
+  geom_bar(stat="identity") + coord_flip() +
+  geom_text(aes(label=freq), vjust=0.2, hjust = 1.5, color="white", size=3.5)+
+  theme_minimal() +lee
+  labs(title="Paises con la mayor cantidad de medallas de oro (1896-2016)", 
+         x="Pais (abreviacion NOC)", y = "Cantidad de medallas de oro") +
+  theme(legend.position="none", plot.title=element_text( hjust=1, vjust=0.5, face='bold'))
+p1
 ```
 
-## R Markdown
+Para el segundo requerimiento descriptivo, primero debemos seleccionar todas aquellas filas correspondientes a atletas que participaron en los juegos olimpicos de Rio de Janeiro de 2016, luego calculamos la edad promedio de los atletas de cada pais.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r 1.2}
+datosRio2016 <- subset(datos, City == "Rio de Janeiro" & Year == "2016", select=c(NOC, Age))
+edadesPromedio <- ddply(datosRio2016, c("NOC"), summarise, Promedio = round(mean(Age), digits = 1))
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+edadesPromedioTop10 <- edadesPromedio[edadesPromedio$NOC %in% topOro10$NOC,]
+
+p2<-ggplot(data=edadesPromedioTop10, aes(x=NOC, y=Promedio, fill=NOC)) +
+  geom_bar(stat="identity") + coord_flip(ylim = c(25,28)) +
+  geom_text(aes(label=Promedio), vjust=0.2, hjust = 1.5, color="white", size=3.5)+
+  theme_minimal() +
+  labs(title="Edad media de atletas olimpicos, Rio de Janeiro 2016", 
+         x="Pais (abreviacion NOC)", y = "Edad media atletas") +
+  theme(legend.position="none", plot.title=element_text( hjust=0.5, vjust=0, face='bold'))
+p2 
+```
+
+Para el tercer requerimiento tomamos los datos que corresponden a los juegos olimpicos de Londres 2012 y luego contamos cuantas veces se repite cada pais, ordenamos de mayor a menor frecuencia y tomamos los primeros dies.
+```{r 1.3}
+datosLondres2012 <- subset(datos, City == "London" & Year == "2012", select=c(NOC))
+cantidadAtletas <- count(datosLondres2012, "NOC")
+atletasOrdenados <- cantidadAtletas[order(-cantidadAtletas$freq),] 
+topAtletas10 <- head(atletasOrdenados,10)
+
+p3<-ggplot(data=topAtletas10, aes(x=NOC, y=freq, fill=NOC)) +
+  geom_bar(stat="identity") + coord_flip() +
+  geom_text(aes(label=freq), vjust=0.2, hjust = 1.5, color="white", size=3.5)+
+  theme_minimal() +
+  labs(title="Paises con la mayor representacion en los juegos olimpicos Londres 2012", 
+         x="Pais (abreviacion NOC)", y = "Cantidad de atletas participantes") +
+  theme(legend.position="none", plot.title=element_text( hjust=1, vjust=0.5, face='bold'))
+p3
+```
+
+
+
+
+
+
+
+# Pregunta 2
+
+## Definicion de variables
+
+Para construir nuestro scatter plot consideraremos las variables altura (X), peso (Y) y sexo (color del punto) de los atletas que participaron en los juegos olimpicos mas recientes (Rio de Janeiro 2016)
 
 ```{r cars}
-summary(cars)
+datosBMIRio2016 <- subset(datos, City == "Rio de Janeiro" & Year == "2016", select=c(Sex, Height, Weight))
+datosBMIRio2016 <- datosBMIRio2016[complete.cases(datosBMIRio2016),]
+p4 <- ggplot() + 
+  geom_point(data = datosBMIRio2016, aes(x = Height, y = Weight, shape = Sex,color = Sex)) +
+  labs(title="Relacion altura/peso de los atletas olimpicos Rio de Janeiro 2016", 
+         x="Altura (m)", y = "Peso (kg)", color = "Sexo", shape = "Sexo") +
+  theme(plot.title=element_text( hjust=0.5, vjust=0.5, face='bold')) 
+p4 
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+# Pregunta 3
+
+
+Primero crearemos nuestros boxplots para la variable peso de los atletas de los distintos paises:
+
+```{r}
+datosPeso <- datos[complete.cases(datos),]
+keep <- c("NOC", "Weight", "Height")
+
+datosPeso <- datosPeso[keep]
+
+# create list of counties in data to loop over 
+NOCList <- unique(datosPeso$NOC)
+
+# create for loop to produce ggplot2 graphs 
+plotList <- list()
+for (i in seq(floor(length(NOCList)/8))) { 
+    
+    # create plot for each county in df 
+    plot <- ggplot(subset(datosPeso, datosPeso$NOC == NOCList[8*i] | 
+                            datosPeso$NOC == NOCList[8*i+1] |
+                            datosPeso$NOC == NOCList[8*i+2] |
+                            datosPeso$NOC == NOCList[8*i+3] |
+                            datosPeso$NOC == NOCList[8*i+4] |
+                            datosPeso$NOC == NOCList[8*i+5] |
+                            datosPeso$NOC == NOCList[8*i+6] |
+                            datosPeso$NOC == NOCList[8*i+7]), aes(NOC, Weight, fill=NOC)) + 
+      geom_boxplot() +
+      labs(title="Grafico Boxplot de Peso de Atletas por Pais",x="Pais (Abreviacion NOC)", y = "Peso Atleta (kg)")
+    plotList[[i]] = plot
+}
+
+for (i in seq(length(plotList))) {
+    print(plotList[[i]])
+}
+
+```
+Similarmente, tenemos nuestros boxplots para la variable de altura:
+
+```{r}
+for (i in seq(floor(length(NOCList)/8))) { 
+    
+    # create plot for each county in df 
+    plot <- ggplot(subset(datosPeso, datosPeso$NOC == NOCList[8*i] | 
+                            datosPeso$NOC == NOCList[8*i+1] |
+                            datosPeso$NOC == NOCList[8*i+2] |
+                            datosPeso$NOC == NOCList[8*i+3] |
+                            datosPeso$NOC == NOCList[8*i+4] |
+                            datosPeso$NOC == NOCList[8*i+5] |
+                            datosPeso$NOC == NOCList[8*i+6] |
+                            datosPeso$NOC == NOCList[8*i+7]), aes(NOC, Height, fill=NOC)) + 
+      geom_boxplot() +
+      labs(title="Grafico Boxplot de Altura de Atletas por Pais",x="Pais (Abreviacion NOC)", y = "Altura Atleta (cm)")
+    plotList[[i]] = plot
+}
+
+for (i in seq(length(plotList))) {
+    print(plotList[[i]])
+}
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+
+
+# Pregunta 4
+
+
+En el histograma se puede apreciar la cantidad de atleta hombre y mujer, que participarón en las diferentes Olimpiadas, incluyendo tambien a las Olimpiadas de Invierno.
+
+## Grafica
+
+```{r plot, include=TRUE}
+ggplot(data=info,aes(x=Year,fill=Sex))+geom_histogram(bins = 60) +
+    labs(title="Cantidad de Atletas V.S. Tiempo", x="annos", y = "Numero de Atletas")
+```
+
+
+## Conclusión
+ * Conforme avanzan los años la cantidad de deportistas tienden a  aumentar con los años, tanto hombre como mujeres.
+ * El enunciado anterior no sé ha estado cumpliendo con los hombre en los ultimos 20 años, durante los juegos olimpicos
+de verano.
+
+
+
+
+
+
+
+
+# Pregunta 5
+
+
+
+```{r CreateNewDAtaFrame,include=FALSE}
+uniqueyear = info$Year[!duplicated(info$Year)] #get the unrepeated years
+uniquenoc = info$NOC[!duplicated(info$NOC)] #get the unrepeated noc
+
+linea = info %>% filter(Year == uniqueyear[1], NOC == uniquenoc[1])
+
+Year =uniqueyear[1]
+Region = uniquenoc[1]
+Athletic = length(linea$ID)
+Men = length(linea$ID[linea$Sex =="M"])
+Women = length(linea$ID[linea$Sex =="F"])
+Bronze = count(linea %>% filter(Medal == "Bronze"))
+Silver = count(linea %>% filter(Medal == "Silver"))  
+Gold = count(linea %>% filter(Medal == "Gold"))
+
+fulldf = data.frame(Year, Athletic, Men,Women,Bronze, Silver, Gold)  # Year, Region, Athletic, Men,Women,Bronze, Silver, Gold
+names(fulldf) = c("Year",
+                  ######"Region",
+                  "Athletic",
+                  "Men",
+                  "Women",
+                  "Bronze",
+                  "Silver",
+                  "Gold")
+df = fulldf
+
+for(val_year in uniqueyear) {
+  for(val_noc in uniquenoc) {
+    linea = info %>% filter(Year == val_year, NOC == val_noc)
+    Year= val_year
+    #######Region = val_noc
+    Athletic = length(linea$ID)
+    Men = length(linea$ID[linea$Sex =="M"])
+    Women = length(linea$ID[linea$Sex =="F"])
+    Bronze = count(linea %>% filter(Medal == "Bronze"))
+    Silver = count(linea %>% filter(Medal == "Silver"))  
+    Gold = count(linea %>% filter(Medal == "Gold"))
+    df = data.frame(Year, Athletic, Men,Women,Bronze, Silver, Gold)  ###Year, Region, Athletic, Men,Women,Bronze, Silver, Gold
+    names(df) = c("Year",
+                  #####"Region",
+                  "Athletic",
+                  "Men",
+                  "Women",
+                  "Bronze",
+                  "Silver",
+                  "Gold")
+    fulldf <-rbind(fulldf,df)
+  }
+}
+```
+
+
+## Creando un nuevo DataFrame
+
+EN esta sección se contruye el nuevo DataFrame mediante un filtro a los datos especificando el _anno_ y el _pais_. A continuacion se muestra solo el comienzo del DataFrame dado su extension. _Disclairmer :_ EN el DataFrame a continuacion no aparece la variable Pais por terminos practicos para desarrollar el correlograma con las variables numericas. 
+
+Sin embargo, dicha variable si fue utilizada, usada como criterio de filtro para agrupar las filas.  
+
+```{r DataFrame, include=TRUE}
+head(fulldf)
+```
+
+
+## Correlograma
+
+
+
+```{r Plot, include=TRUE}
+ggcorrplot(cor(fulldf))
+
+```
+
+## Conclusion
+
+*El grafico demuestra que las variables más correlacionadas son el numero de atletas con los hombre en la competencia, y en segundo lugar están el numero de atletas respecto a las mujeres en competencia. Esta información tienen sentido dado que entre mayor numero de atletas en el evento, siempre implica que deben acer ingresado mas hombre o mujeres en competencia. 
+
+*El resto de las correlaciones no presentan mayor indicio de que estén relacionadas.
+
