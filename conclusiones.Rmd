@@ -1,0 +1,24 @@
+---
+title: "Conclusiones"
+output: html_document
+---
+
+
+
+## Conclusiones
+
+* Podemos observar que el pais que mas medallas de oro tiene es Estados Unidos, seguido de la Union Sovietica y luego Alemania. Es entendible que Rusia no aparezca en el grafico pues se le considera como un pais distinto a la Union Sovietica que, por su larga duracion, se le atribuyen mayoria de las medallas de oro de dicho pais.
+
+* Para los juegos olimpicos de Rio de Janeiro 2016, podemos observar que los paises con la mayor edad media entre sus atletas son Suecia seguido de Italia, Francia y Hungria.
+
+* Para los juegos olimpicos de Londres 2012, podemos ver que los paises con mayor cantidad de atletas participantes son Estados Unidos seguido cercanamente por Gran Bretana, luego Rusia, Australia y Alemania.
+
+* Podemos observar que existe una gran densidad en la cantidad de atletas hombres en el rango de los 75 a 100 kilogramos, mientras que el grueso de las atletas mujeres se encuentran entre los 30 y 70 kilogramos. Respecto a la altura es comun ver atletas hombres superando los 2 metros, mientras que la mayoria de las atletas mujeres estan por debajo de los 175 centimetros.
+
+* Respecto a la altura de los atletas de distintos paises, es comun ver que que la media este los 170 y 180 centimetros, salvo excepciones como Lituania donde la media es aproximadamente 195 centimetros O Filipinas con una media de 163 centimetros. Respecto al peso es comun que los atletas de los distintos paises tengan pesos similares entre los 70 y los 80 kilogramos, con algunas excepciones como Estonia donde su media se acerca a los 90 kilogramos y el peso de los atletas es mucho mas variado. 
+
+* Conforme avanzan los anhos la cantidad de deportistas tienden a  aumentar, tanto hombre como mujeres.
+
+* El enunciado anterior no se ha estado cumpliendo con los hombre en los ultimos 20 anhos, durante los juegos olimpicos de verano.
+
+* El correlograma demuestra que las variables mas correlacionadas son el numero de atletas con los hombre en la competencia, y en segundo lugar estan el numero de atletas respecto a las mujeres en competencia. Esta informacion tienen sentido dado que entre mayor numero de atletas en el evento, siempre implica que deben haber ingresado mas hombre o mujeres en competencia. El resto de las correlaciones no presentan mayor indicio de que esten relacionadas.
