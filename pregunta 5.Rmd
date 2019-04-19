@@ -14,10 +14,10 @@ info <- read.csv("athlete_events.csv")
 
 ```
 
-## R Markdown
 
 
-```{r frame,include=TRUE}
+
+```{r CreateNewDAtaFrame,include=FALSE}
 uniqueyear = info$Year[!duplicated(info$Year)] #get the unrepeated years
 uniquenoc = info$NOC[!duplicated(info$NOC)] #get the unrepeated noc
 
@@ -42,7 +42,6 @@ names(fulldf) = c("Year",
                   "Silver",
                   "Gold")
 df = fulldf
-fulldf
 
 for(val_year in uniqueyear) {
   for(val_noc in uniquenoc) {
@@ -67,25 +66,29 @@ for(val_year in uniqueyear) {
     fulldf <-rbind(fulldf,df)
   }
 }
-
-
-##==============================================================
-
-# Correlation matrix
-data(fulldf)
-#corr <- round(cor(fulldf), 1)
-
-
-ggcorrplot(cor(fulldf))
-
 ```
 
 
-## Including Plots
+## Creando un nuevo DataFrame
+
+EN esta sección se contruye el nuevo DataFrame mediante un filtro a los datos especificando el _anno_ y el _pais_. A continuacion se muestra solo el comienzo del DataFrame dado su extension. _Disclairmer :_ EN el DataFrame a continuacion no aparece la variable Pais por terminos practicos para desarrollar el correlograma con las variables numericas. 
+
+Sin embargo, dicha variable si fue utilizada, usada como criterio de filtro para agrupar las filas.  
+
+```{r DataFrame, include=TRUE}
+head(fulldf)
+```
 
 
-```{r setup, include=TRUE}
+## Correlograma
 
+
+El grafico demuestra que las variables más correlacionadas son el numero de atletas con los hombre en la competencia, y en segundo lugar están el numero de atletas respecto a las mujeres en competencia. Esta información tienen sentido dado que entre mayor numero de atletas en el evento, siempre implica que deben acer ingresado mas hombre o mujeres en competencia. 
+
+El resto de las correlaciones no presentan mayor indicio de que estén relacionadas.
+
+```{r Plot, include=TRUE}
+ggcorrplot(cor(fulldf))
 
 ```
 
