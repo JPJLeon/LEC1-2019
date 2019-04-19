@@ -5,24 +5,93 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+info <- read.csv("athlete_events.csv")
+#info2 <- read.csv("athlete_events.csv")
+
 ```
 
 ## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r frame,include=TRUE}
+uniqueyear = info$Year[!duplicated(info$Year)] #get the unrepeated years
+uniquenoc = info$NOC[!duplicated(info$NOC)] #get the unrepeated noc
 
-```{r cars}
-summary(cars)
+linea = info %>% filter(Year == uniqueyear[1], NOC == uniquenoc[1])
+
+Year =uniqueyear[1]
+Region = uniquenoc[1]
+Athletic = length(linea$ID)
+Men = length(linea$ID[linea$Sex =="M"])
+Women = length(linea$ID[linea$Sex =="F"])
+Bronze = count(linea %>% filter(Medal == "Bronze"))
+Silver = count(linea %>% filter(Medal == "Silver"))  
+Gold = count(linea %>% filter(Medal == "Gold"))
+
+fulldf = data.frame(Year, Region, Athletic, Men,Women,Bronze, Silver, Gold)
+names(fulldf) = c("Year",
+                  "Region",
+                  "Athletic",
+                  "Men",
+                  "Women",
+                  "Bronze",
+                  "Silver",
+                  "Gold")
+df = fulldf
+fulldf
+names(df)
+names(fulldf)
+n=0
+
+for(val_year in uniqueyear) {
+  for(val_noc in uniquenoc) {
+    ####print(n)
+    #####n = n+1
+    linea = info %>% filter(Year == val_year, NOC == val_noc)
+    Year= val_year
+    Region = val_noc
+    Athletic = length(linea$ID)
+    Men = length(linea$ID[linea$Sex =="M"])
+    Women = length(linea$ID[linea$Sex =="F"])
+    #####names(df)
+    Bronze = count(linea %>% filter(Medal == "Bronze"))
+    Silver = count(linea %>% filter(Medal == "Silver"))  
+    Gold = count(linea %>% filter(Medal == "Gold"))
+    #####names(df)
+    #####print(n)
+    df = data.frame(Year, Region, Athletic, Men,Women,Bronze, Silver, Gold)
+    names(df) = c("Year",
+                  "Region",
+                  "Athletic",
+                  "Men",
+                  "Women",
+                  "Bronze",
+                  "Silver",
+                  "Gold")
+    #####names(df)
+    #######names(fulldf)
+    fulldf <-rbind(fulldf,df)
+    print(n)  
+  }
+}
+#  ds <- rbind(ds,df)
+
 ```
+
+df<-data.frame("hi","bye")
+names(df)<-c("hello","goodbye")
+
+de<-data.frame("hola","ciao")
+names(de)<-c("hello","goodbye")
+
+newdf <- rbind(df, de)
+
+
+
 
 ## Including Plots
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
