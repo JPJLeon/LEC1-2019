@@ -17,7 +17,7 @@ datosBMIRio2016 <- datosBMIRio2016[complete.cases(datosBMIRio2016),]
 p4 <- ggplot() + 
   geom_point(data = datosBMIRio2016, aes(x = Height, y = Weight, shape = Sex,color = Sex)) +
   labs(title="Relacion altura/peso de los atletas olimpicos Rio de Janeiro 2016", 
-         x="Altura (m)", y = "Peso (kg)", color = "Sexo", shape = "Sexo") +
+         x="Altura (cm)", y = "Peso (kg)", color = "Sexo", shape = "Sexo") +
   theme(plot.title=element_text( hjust=0.5, vjust=0.5, face='bold')) 
 p4 
 ```

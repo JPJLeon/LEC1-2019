@@ -1,28 +1,63 @@
 ---
-title: "pregunta 3"
+title: "Pregunta 3"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+Primero crearemos nuestros boxplots para la variable peso de los atletas de los distintos paises:
+
+```{r}
+datosPeso <- datos[complete.cases(datos),]
+keep <- c("NOC", "Weight", "Height")
+
+datosPeso <- datosPeso[keep]
+
+# create list of counties in data to loop over 
+NOCList <- unique(datosPeso$NOC)
+
+# create for loop to produce ggplot2 graphs 
+plotList <- list()
+for (i in seq(floor(length(NOCList)/8))) { 
+    
+    # create plot for each county in df 
+    plot <- ggplot(subset(datosPeso, datosPeso$NOC == NOCList[8*i] | 
+                            datosPeso$NOC == NOCList[8*i+1] |
+                            datosPeso$NOC == NOCList[8*i+2] |
+                            datosPeso$NOC == NOCList[8*i+3] |
+                            datosPeso$NOC == NOCList[8*i+4] |
+                            datosPeso$NOC == NOCList[8*i+5] |
+                            datosPeso$NOC == NOCList[8*i+6] |
+                            datosPeso$NOC == NOCList[8*i+7]), aes(NOC, Weight, fill=NOC)) + 
+      geom_boxplot() +
+      labs(title="Grafico Boxplot de Peso de Atletas por Pais",x="Pais (Abreviacion NOC)", y = "Peso Atleta (kg)")
+    plotList[[i]] = plot
+}
+
+for (i in seq(length(plotList))) {
+    print(plotList[[i]])
+}
+
+```
+Similarmente, tenemos nuestros boxplots para la variable de altura:
+
+```{r}
+for (i in seq(floor(length(NOCList)/8))) { 
+    
+    # create plot for each county in df 
+    plot <- ggplot(subset(datosPeso, datosPeso$NOC == NOCList[8*i] | 
+                            datosPeso$NOC == NOCList[8*i+1] |
+                            datosPeso$NOC == NOCList[8*i+2] |
+                            datosPeso$NOC == NOCList[8*i+3] |
+                            datosPeso$NOC == NOCList[8*i+4] |
+                            datosPeso$NOC == NOCList[8*i+5] |
+                            datosPeso$NOC == NOCList[8*i+6] |
+                            datosPeso$NOC == NOCList[8*i+7]), aes(NOC, Height, fill=NOC)) + 
+      geom_boxplot() +
+      labs(title="Grafico Boxplot de Altura de Atletas por Pais",x="Pais (Abreviacion NOC)", y = "Altura Atleta (cm)")
+    plotList[[i]] = plot
+}
+
+for (i in seq(length(plotList))) {
+    print(plotList[[i]])
+}
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

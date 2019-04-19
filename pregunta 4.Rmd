@@ -18,7 +18,7 @@ length(info$Age[info$Year< 1900])
 ```
 ## Including Plots
 
-```{r plot, include=FALSE}
+```{r plot 1.5}
 ggplot(data=info,aes(x=Year,fill=Sex))+geom_histogram(bins = 60)
 
 ```
