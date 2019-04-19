@@ -7,6 +7,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(dplyr)
+library(ggcorrplot)
+
 info <- read.csv("athlete_events.csv")
 #info2 <- read.csv("athlete_events.csv")
 
@@ -30,9 +32,9 @@ Bronze = count(linea %>% filter(Medal == "Bronze"))
 Silver = count(linea %>% filter(Medal == "Silver"))  
 Gold = count(linea %>% filter(Medal == "Gold"))
 
-fulldf = data.frame(Year, Region, Athletic, Men,Women,Bronze, Silver, Gold)
+fulldf = data.frame(Year, Athletic, Men,Women,Bronze, Silver, Gold)  # Year, Region, Athletic, Men,Women,Bronze, Silver, Gold
 names(fulldf) = c("Year",
-                  "Region",
+                  ######"Region",
                   "Athletic",
                   "Men",
                   "Women",
@@ -41,57 +43,50 @@ names(fulldf) = c("Year",
                   "Gold")
 df = fulldf
 fulldf
-names(df)
-names(fulldf)
-n=0
 
 for(val_year in uniqueyear) {
   for(val_noc in uniquenoc) {
-    ####print(n)
-    #####n = n+1
     linea = info %>% filter(Year == val_year, NOC == val_noc)
     Year= val_year
-    Region = val_noc
+    #######Region = val_noc
     Athletic = length(linea$ID)
     Men = length(linea$ID[linea$Sex =="M"])
     Women = length(linea$ID[linea$Sex =="F"])
-    #####names(df)
     Bronze = count(linea %>% filter(Medal == "Bronze"))
     Silver = count(linea %>% filter(Medal == "Silver"))  
     Gold = count(linea %>% filter(Medal == "Gold"))
-    #####names(df)
-    #####print(n)
-    df = data.frame(Year, Region, Athletic, Men,Women,Bronze, Silver, Gold)
+    df = data.frame(Year, Athletic, Men,Women,Bronze, Silver, Gold)  ###Year, Region, Athletic, Men,Women,Bronze, Silver, Gold
     names(df) = c("Year",
-                  "Region",
+                  #####"Region",
                   "Athletic",
                   "Men",
                   "Women",
                   "Bronze",
                   "Silver",
                   "Gold")
-    #####names(df)
-    #######names(fulldf)
     fulldf <-rbind(fulldf,df)
-    print(n)  
   }
 }
-#  ds <- rbind(ds,df)
+
+
+##==============================================================
+
+# Correlation matrix
+data(fulldf)
+#corr <- round(cor(fulldf), 1)
+
+
+ggcorrplot(cor(fulldf))
 
 ```
-
-df<-data.frame("hi","bye")
-names(df)<-c("hello","goodbye")
-
-de<-data.frame("hola","ciao")
-names(de)<-c("hello","goodbye")
-
-newdf <- rbind(df, de)
-
-
 
 
 ## Including Plots
 
-You can also embed plots, for example:
+
+```{r setup, include=TRUE}
+
+
+```
+
 
