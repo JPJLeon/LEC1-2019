@@ -11,19 +11,22 @@ library(ggplot2)
 info <- read.csv("athlete_events.csv")
 
 ```
-## qué magia negra ocurre aqui??PD: borrar esta cosa
+En el histograma se puede apreciar la cantidad de atleta hombre y mujer, que participarón en las diferentes Olimpiadas, incluyendo tambien a las Olimpiadas de Invierno.
 
-```{r magia}
-length(info$Age[info$Year< 1900])
+## Grafica
+
+```{r plot, include=TRUE}
+ggplot(data=info,aes(x=Year,fill=Sex))+geom_histogram(bins = 60) +
+    labs(title="Cantidad de Atletas V.S. Tiempo", x="annos", y = "Numero de Atletas")
 ```
-## Including Plots
 
+<<<<<<< HEAD
 ```{r plot 1.5}
 ggplot(data=info,aes(x=Year,fill=Sex))+geom_histogram(bins = 60)
+=======
+>>>>>>> e453c34855ce13eda8f20e4ebd369b8a87836ea2
 
-```
 ## Conclusión
-
  * Conforme avanzan los años la cantidad de deportistas tienden a  aumentar con los años, tanto hombre como mujeres.
  * El enunciado anterior no sé ha estado cumpliendo con los hombre en los ultimos 20 años, durante los juegos olimpicos
 de verano.

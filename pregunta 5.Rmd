@@ -5,24 +5,91 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(ggcorrplot)
+
+info <- read.csv("athlete_events.csv")
+#info2 <- read.csv("athlete_events.csv")
+
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+```{r CreateNewDAtaFrame,include=FALSE}
+uniqueyear = info$Year[!duplicated(info$Year)] #get the unrepeated years
+uniquenoc = info$NOC[!duplicated(info$NOC)] #get the unrepeated noc
+
+linea = info %>% filter(Year == uniqueyear[1], NOC == uniquenoc[1])
+
+Year =uniqueyear[1]
+Region = uniquenoc[1]
+Athletic = length(linea$ID)
+Men = length(linea$ID[linea$Sex =="M"])
+Women = length(linea$ID[linea$Sex =="F"])
+Bronze = count(linea %>% filter(Medal == "Bronze"))
+Silver = count(linea %>% filter(Medal == "Silver"))  
+Gold = count(linea %>% filter(Medal == "Gold"))
+
+fulldf = data.frame(Year, Athletic, Men,Women,Bronze, Silver, Gold)  # Year, Region, Athletic, Men,Women,Bronze, Silver, Gold
+names(fulldf) = c("Year",
+                  ######"Region",
+                  "Athletic",
+                  "Men",
+                  "Women",
+                  "Bronze",
+                  "Silver",
+                  "Gold")
+df = fulldf
+
+for(val_year in uniqueyear) {
+  for(val_noc in uniquenoc) {
+    linea = info %>% filter(Year == val_year, NOC == val_noc)
+    Year= val_year
+    #######Region = val_noc
+    Athletic = length(linea$ID)
+    Men = length(linea$ID[linea$Sex =="M"])
+    Women = length(linea$ID[linea$Sex =="F"])
+    Bronze = count(linea %>% filter(Medal == "Bronze"))
+    Silver = count(linea %>% filter(Medal == "Silver"))  
+    Gold = count(linea %>% filter(Medal == "Gold"))
+    df = data.frame(Year, Athletic, Men,Women,Bronze, Silver, Gold)  ###Year, Region, Athletic, Men,Women,Bronze, Silver, Gold
+    names(df) = c("Year",
+                  #####"Region",
+                  "Athletic",
+                  "Men",
+                  "Women",
+                  "Bronze",
+                  "Silver",
+                  "Gold")
+    fulldf <-rbind(fulldf,df)
+  }
+}
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+## Creando un nuevo DataFrame
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+EN esta sección se contruye el nuevo DataFrame mediante un filtro a los datos especificando el _anno_ y el _pais_. A continuacion se muestra solo el comienzo del DataFrame dado su extension. _Disclairmer :_ EN el DataFrame a continuacion no aparece la variable Pais por terminos practicos para desarrollar el correlograma con las variables numericas. 
+
+Sin embargo, dicha variable si fue utilizada, usada como criterio de filtro para agrupar las filas.  
+
+```{r DataFrame, include=TRUE}
+head(fulldf)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## Correlograma
+
+
+El grafico demuestra que las variables más correlacionadas son el numero de atletas con los hombre en la competencia, y en segundo lugar están el numero de atletas respecto a las mujeres en competencia. Esta información tienen sentido dado que entre mayor numero de atletas en el evento, siempre implica que deben acer ingresado mas hombre o mujeres en competencia. 
+
+El resto de las correlaciones no presentan mayor indicio de que estén relacionadas.
+
+```{r Plot, include=TRUE}
+ggcorrplot(cor(fulldf))
+
+```
+
+
